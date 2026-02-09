@@ -12,14 +12,25 @@ const generateToken = (id) => {
 
 // REGISTER USER (Admin / Sales)
 exports.registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  try {
+    const { name, email, password, role } = req.body;
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || "sales",
-  });
+    // 🔴 CHECK IF USER ALREADY EXISTS
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already registered with this email",
+      });
+    }
+
+    // CREATE USER
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: role || "sales",
+    });
 
   // 🔐 create email verification token
   const verifyToken = crypto.randomBytes(20).toString("hex");
