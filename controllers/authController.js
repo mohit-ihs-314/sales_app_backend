@@ -15,16 +15,15 @@ exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // 🔴 CHECK IF USER ALREADY EXISTS
+    // 🔴 Check if email already exists
     const existingUser = await User.findOne({ email });
-
     if (existingUser) {
       return res.status(400).json({
         message: "User already registered with this email",
       });
     }
 
-    // CREATE USER
+    // Create user
     const user = await User.create({
       name,
       email,
@@ -32,30 +31,37 @@ exports.registerUser = async (req, res) => {
       role: role || "sales",
     });
 
-  // 🔐 create email verification token
-  const verifyToken = crypto.randomBytes(20).toString("hex");
+    // 🔐 Create email verification token
+    const verifyToken = crypto.randomBytes(20).toString("hex");
 
-  user.emailVerifyToken = crypto
-    .createHash("sha256")
-    .update(verifyToken)
-    .digest("hex");
+    user.emailVerifyToken = crypto
+      .createHash("sha256")
+      .update(verifyToken)
+      .digest("hex");
 
-  await user.save();
+    await user.save();
 
-  const verifyUrl = `http://localhost:5000/api/auth/verify-email/${verifyToken}`;
+    const verifyUrl =
+      `https://sales-app-backend-eti3.onrender.com/api/auth/verify-email/${verifyToken}`;
 
-  const message = `
-    <h2>Verify Your Email</h2>
-    <p>Click below link to activate your account:</p>
-    <a href="${verifyUrl}">${verifyUrl}</a>
-  `;
+    const message = `
+      <h2>Verify Your Email</h2>
+      <p>Click below link to activate your account:</p>
+      <a href="${verifyUrl}">${verifyUrl}</a>
+    `;
 
-  await sendEmail(user.email, "Verify your account", message);
+    await sendEmail(user.email, "Verify your account", message);
 
-  res.status(201).json({
-    message: "Registration successful. Please verify your email.",
-  });
+    res.status(201).json({
+      message: "Registration successful. Please verify your email.",
+    });
+
+  } catch (error) {
+    console.log("REGISTER ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 // LOGIN USER
 exports.loginUser = async (req, res) => {
