@@ -1,31 +1,39 @@
 const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
+
+const OAuth2 = google.auth.OAuth2;
 
 const sendEmail = async (to, subject, html) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // TLS
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+  const oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    "https://developers.google.com/oauthplayground"
+  );
 
-    await transporter.sendMail({
-      from: `"Investor Home Solutions" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    });
+  oauth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+  });
 
-    console.log("EMAIL SENT SUCCESSFULLY");
-  } catch (err) {
-    console.log("EMAIL ERROR:", err);
-  }
+  const accessToken = await oauth2Client.getAccessToken();
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.EMAIL_USER,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+      accessToken: accessToken.token,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"Investor Home Solutions" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html,
+  });
 };
 
 module.exports = sendEmail;
