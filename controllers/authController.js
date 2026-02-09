@@ -53,7 +53,7 @@ exports.registerUser = async (req, res) => {
     await sendEmail(user.email, "Verify your account", message);
 
     res.status(201).json({
-      message: "Registration successful. Please verify your email.",
+      message: "Registration successful. You can now login.",
     });
 
   } catch (error) {
@@ -103,11 +103,13 @@ exports.forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
 
+    // Always return success (security best practice)
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.json({
+        message: "If this email exists, reset link sent",
+      });
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(20).toString("hex");
 
     user.resetPasswordToken = crypto
@@ -115,21 +117,27 @@ exports.forgotPassword = async (req, res) => {
       .update(resetToken)
       .digest("hex");
 
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
     await user.save();
 
-    const resetUrl = `http://localhost:5000/api/auth/reset-password/${resetToken}`;
+    const resetUrl =
+      `https://sales-app-backend-eti3.onrender.com/api/auth/reset-password/${resetToken}`;
 
     const message = `
       <h2>Password Reset</h2>
-      <p>You requested password reset.</p>
-      <p>Click the link below:</p>
+      <p>Click link below to reset password:</p>
       <a href="${resetUrl}">${resetUrl}</a>
     `;
 
-    await sendEmail(user.email, "Password Reset", message);
+    // Send email in background
+    sendEmail(user.email, "Reset Password", message)
+      .then(() => console.log("Reset email sent"))
+      .catch((err) => console.log("Email failed:", err.message));
 
-    res.json({ message: "Reset email sent" });
+    res.json({
+      message: "If this email exists, reset link sent",
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
