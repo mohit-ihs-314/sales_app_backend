@@ -7,27 +7,44 @@ const leadSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     clientName: {
       type: String,
       required: true,
     },
+
     phone: {
       type: String,
       required: true,
     },
+
     email: {
       type: String,
     },
+
     project: {
       type: String,
     },
+
     notes: {
       type: String,
     },
+
+    rm: {
+      type: String, // event invite RM
+    },
+
+    leadType: {
+      type: String,
+      enum: ["walkin", "event"],
+      default: "walkin",
+    },
+
     photo: {
       type: String, // Cloudinary URL
       required: true,
     },
+
     status: {
       type: String,
       enum: [
