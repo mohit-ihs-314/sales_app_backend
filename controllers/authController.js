@@ -77,11 +77,11 @@ exports.loginUser = async (req, res) => {
     }
 
     // 3️⃣ 🔐 check email verification HERE
-    if (!user.isVerified) {
-      return res.status(401).json({
-        message: "Please verify your email before login",
-      });
-    }
+    // if (!user.isVerified) {
+    //   return res.status(401).json({
+    //     message: "Please verify your email before login",
+    //   });
+    // }
 
     // 4️⃣ send token
     res.json({
