@@ -68,3 +68,16 @@ exports.updateLeadStatus = async (req, res) => {
 
   res.json(lead);
 };
+
+exports.deleteLead = async (req, res) => {
+
+  const lead = await Lead.findById(req.params.id);
+
+  if(!lead){
+    return res.status(404).json({message:"Lead not found"});
+  }
+
+  await lead.deleteOne();
+
+  res.json({message:"Lead deleted"});
+};
