@@ -18,6 +18,6 @@ router.get("/my", protect, salesOnly, getMyLeads);
 // ADMIN
 router.get("/", protect, adminOnly, getAllLeads);
 router.put("/:id/status", protect, adminOnly, updateLeadStatus);
-router.delete("/:id", protect, admin, deleteLead);
+router.delete("/:id", protect, adminOnly, deleteLead);
 
 module.exports = router;
