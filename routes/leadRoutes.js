@@ -4,6 +4,7 @@ const {
   getAllLeads,
   getMyLeads,
   updateLeadStatus,
+  deleteLead,
 } = require("../controllers/leadController");
 
 const { protect, adminOnly, salesOnly } = require("../middleware/authMiddleware");
