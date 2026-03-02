@@ -50,7 +50,7 @@ exports.registerUser = async (req, res) => {
       <a href="${verifyUrl}">${verifyUrl}</a>
     `;
 
-    await sendEmail(user.email, "Verify your account", message);
+    console.log("Email sending skipped in production");
 
     res.status(201).json({
       message: "Registration successful. You can now login.",
