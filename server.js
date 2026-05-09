@@ -16,9 +16,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
-app.use("/api/leads", leadRoutes);
+// app.use("/api/leads", leadRoutes);
 
 
 app.get("/", (req, res) => {
