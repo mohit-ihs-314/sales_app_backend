@@ -1,25 +1,39 @@
-const Lead = require("../models/Lead");
+const OmaxeLead = require("../models/OmaxeLead");
+const LamboLead = require("../models/LamboLead");
+const InvestorLead = require("../models/InvestorLead");
 const cloudinary = require("../config/cloudinary");
 
 // CREATE LEAD (SALES)
 exports.createLead = async (req, res) => {
   try {
-    const { clientName, phone, email, project, notes } = req.body;
 
-    if (!clientName || !phone) {
-      return res.status(400).json({ message: "Client name & phone required" });
+    const {
+      clientName,
+      phone,
+      email,
+      project,
+      notes,
+      eventType
+    } = req.body;
+
+    let LeadModel;
+
+    if (eventType === "omaxe") {
+      LeadModel = OmaxeLead;
+    } else if (eventType === "lambo") {
+      LeadModel = LamboLead;
+    } else {
+      LeadModel = InvestorLead;
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Photo is required" });
-    }
+    const result = await cloudinary.uploader.upload(
+      req.file.path,
+      {
+        folder: "leads",
+      }
+    );
 
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "leads",
-    });
-
-    const lead = await Lead.create({
+    const lead = await LeadModel.create({
       salesperson: req.user._id,
       clientName,
       phone,
@@ -30,8 +44,12 @@ exports.createLead = async (req, res) => {
     });
 
     res.status(201).json(lead);
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -73,11 +91,11 @@ exports.deleteLead = async (req, res) => {
 
   const lead = await Lead.findById(req.params.id);
 
-  if(!lead){
-    return res.status(404).json({message:"Lead not found"});
+  if (!lead) {
+    return res.status(404).json({ message: "Lead not found" });
   }
 
   await lead.deleteOne();
 
-  res.json({message:"Lead deleted"});
+  res.json({ message: "Lead deleted" });
 };
