@@ -1,5 +1,6 @@
 const OmaxeLead = require("../models/OmaxeLead");
 const LamboLead = require("../models/LamboLead");
+const InvestorLead = require("../models/loftLead");
 const InvestorLead = require("../models/InvestorLead");
 const cloudinary = require("../config/cloudinary");
 
@@ -13,6 +14,10 @@ const getLeadModel = (eventType) => {
 
   if (eventType === "lambo") {
     return LamboLead;
+  }
+
+  if (eventType === "loft") {
+    return LoftLead;
   }
 
   return InvestorLead;
