@@ -1,6 +1,6 @@
 const OmaxeLead = require("../models/OmaxeLead");
 const LamboLead = require("../models/LamboLead");
-const InvestorLead = require("../models/loftLead");
+const LoftLead = require("../models/loftLead");
 const InvestorLead = require("../models/InvestorLead");
 const cloudinary = require("../config/cloudinary");
 
