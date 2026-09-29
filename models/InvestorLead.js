@@ -25,5 +25,5 @@ const leadSchema = new mongoose.Schema(
 module.exports = mongoose.model(
   "InvestorLead",
   leadSchema,
-  "investor_leads"
+  "investor_leads_01_10_2026"
 );
