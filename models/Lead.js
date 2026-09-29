@@ -48,7 +48,6 @@ const leadSchema = new mongoose.Schema(
       default: "event",
     },
 
-    // IHS leads do NOT require a photo
     photo: {
       type: String,
       default: null,
@@ -69,20 +68,20 @@ const leadSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+
+    // FORCE COLLECTION
+    collection: "investor_leads_01_10_2026",
   }
 );
 
-// IMPORTANT:
-// Explicitly use the new collection.
+// Use a unique model name so there can be NO collision
 const InvestorLead = mongoose.model(
-  "InvestorLead",
-  leadSchema,
-  "investor_leads_01_10_2026"
+  "InvestorLead2026",
+  leadSchema
 );
 
-// Debug: confirms which MongoDB collection is being used
 console.log(
-  "InvestorLead MongoDB collection:",
+  "🔥 INVESTOR MODEL COLLECTION:",
   InvestorLead.collection.name
 );
 
