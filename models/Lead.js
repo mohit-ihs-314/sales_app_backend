@@ -41,8 +41,8 @@ const leadSchema = new mongoose.Schema(
     },
 
     photo: {
-      type: String, // Cloudinary URL
-      required: true,
+      type: String,
+      default: null,
     },
 
     status: {
@@ -58,7 +58,13 @@ const leadSchema = new mongoose.Schema(
       default: "new",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model("Lead", leadSchema);
+module.exports = mongoose.model(
+  "InvestorLead",
+  leadSchema,
+  "investor_leads_01_10_2026"
+);
