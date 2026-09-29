@@ -11,46 +11,38 @@ const leadSchema = new mongoose.Schema(
     clientName: {
       type: String,
       required: true,
-      trim: true,
     },
 
     phone: {
       type: String,
       required: true,
-      trim: true,
     },
 
     email: {
       type: String,
-      default: "",
-      trim: true,
     },
 
     project: {
       type: String,
-      default: "",
-      trim: true,
     },
 
     notes: {
       type: String,
-      default: "",
     },
 
     rm: {
-      type: String,
-      default: "",
+      type: String, // event invite RM
     },
 
     leadType: {
       type: String,
       enum: ["walkin", "event"],
-      default: "event",
+      default: "walkin",
     },
 
     photo: {
-      type: String,
-      default: null,
+      type: String, // Cloudinary URL
+      required: true,
     },
 
     status: {
@@ -66,23 +58,7 @@ const leadSchema = new mongoose.Schema(
       default: "new",
     },
   },
-  {
-    timestamps: true,
-
-    // FORCE COLLECTION
-    collection: "investor_leads_01_10_2026",
-  }
+  { timestamps: true }
 );
 
-// Use a unique model name so there can be NO collision
-const InvestorLead = mongoose.model(
-  "InvestorLead2026",
-  leadSchema
-);
-
-console.log(
-  "🔥 INVESTOR MODEL COLLECTION:",
-  InvestorLead.collection.name
-);
-
-module.exports = InvestorLead;
+module.exports = mongoose.model("Lead", leadSchema);

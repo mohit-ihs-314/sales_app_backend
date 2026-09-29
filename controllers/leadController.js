@@ -7,6 +7,7 @@ const cloudinary = require("../config/cloudinary");
 // ================= GET MODEL =================
 
 const getLeadModel = (eventType) => {
+
   if (eventType === "omaxe") {
     return OmaxeLead;
   }
@@ -19,14 +20,15 @@ const getLeadModel = (eventType) => {
     return LoftLead;
   }
 
-  // investor / default
   return InvestorLead;
 };
 
 // ================= CREATE LEAD =================
 
 exports.createLead = async (req, res) => {
+
   try {
+
     const {
       clientName,
       phone,
@@ -36,23 +38,21 @@ exports.createLead = async (req, res) => {
       eventType,
     } = req.body;
 
-    const LeadModel = getLeadModel(eventType);
+    const LeadModel =
+        getLeadModel(eventType);
 
     // ================= VALIDATION =================
 
     if (!clientName || !phone) {
+
       return res.status(400).json({
-        message: "Client name & phone required",
+        message:
+            "Client name & phone required",
       });
     }
 
-    // =========================================================
-    // PHOTO VALIDATION
-    // Investor/IHS does NOT require photo.
-    // All other events still require photo.
-    // =========================================================
+    if (!req.file) {
 
-    if (eventType !== "investor" && !req.file) {
       return res.status(400).json({
         message: "Photo is required",
       });
@@ -60,23 +60,18 @@ exports.createLead = async (req, res) => {
 
     // ================= CLOUDINARY =================
 
-    let photoUrl = null;
-
-    // Upload photo only when one exists
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(
-        req.file.path,
-        {
-          folder: "leads",
-        }
-      );
-
-      photoUrl = result.secure_url;
-    }
+    const result =
+        await cloudinary.uploader.upload(
+      req.file.path,
+      {
+        folder: "leads",
+      },
+    );
 
     // ================= SAVE =================
 
     const lead = await LeadModel.create({
+
       salesperson: req.user._id,
 
       clientName,
@@ -85,16 +80,13 @@ exports.createLead = async (req, res) => {
       project,
       notes,
 
-      // Investor = null
-      // Other events = Cloudinary URL
-      photo: photoUrl,
+      photo: result.secure_url,
     });
-
-    // ================= RESPONSE =================
 
     res.status(201).json(lead);
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
@@ -105,17 +97,26 @@ exports.createLead = async (req, res) => {
 
 // ================= GET ALL LEADS =================
 
-exports.getAllLeads = async (req, res) => {
+exports.getAllLeads = async (
+  req,
+  res,
+) => {
+
   try {
+
     const { eventType } = req.query;
 
-    const LeadModel = getLeadModel(eventType);
+    const LeadModel =
+        getLeadModel(eventType);
 
-    const leads = await LeadModel.find()
+    const leads =
+        await LeadModel.find()
+
       .populate(
         "salesperson",
-        "name email"
+        "name email",
       )
+
       .sort({
         createdAt: -1,
       });
@@ -123,6 +124,7 @@ exports.getAllLeads = async (req, res) => {
     res.json(leads);
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
@@ -133,13 +135,20 @@ exports.getAllLeads = async (req, res) => {
 
 // ================= GET MY LEADS =================
 
-exports.getMyLeads = async (req, res) => {
+exports.getMyLeads = async (
+  req,
+  res,
+) => {
+
   try {
+
     const { eventType } = req.query;
 
-    const LeadModel = getLeadModel(eventType);
+    const LeadModel =
+        getLeadModel(eventType);
 
-    const leads = await LeadModel.find({
+    const leads =
+        await LeadModel.find({
       salesperson: req.user._id,
     }).sort({
       createdAt: -1,
@@ -148,6 +157,7 @@ exports.getMyLeads = async (req, res) => {
     res.json(leads);
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
@@ -158,20 +168,24 @@ exports.getMyLeads = async (req, res) => {
 
 // ================= UPDATE STATUS =================
 
-exports.updateLeadStatus = async (req, res) => {
+exports.updateLeadStatus =
+    async (req, res) => {
+
   try {
-    const {
-      status,
-      eventType,
-    } = req.body;
 
-    const LeadModel = getLeadModel(eventType);
+    const { status, eventType } =
+        req.body;
 
-    const lead = await LeadModel.findById(
-      req.params.id
+    const LeadModel =
+        getLeadModel(eventType);
+
+    const lead =
+        await LeadModel.findById(
+      req.params.id,
     );
 
     if (!lead) {
+
       return res.status(404).json({
         message: "Lead not found",
       });
@@ -184,6 +198,7 @@ exports.updateLeadStatus = async (req, res) => {
     res.json(lead);
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
@@ -194,17 +209,25 @@ exports.updateLeadStatus = async (req, res) => {
 
 // ================= DELETE LEAD =================
 
-exports.deleteLead = async (req, res) => {
+exports.deleteLead = async (
+  req,
+  res,
+) => {
+
   try {
+
     const { eventType } = req.query;
 
-    const LeadModel = getLeadModel(eventType);
+    const LeadModel =
+        getLeadModel(eventType);
 
-    const lead = await LeadModel.findById(
-      req.params.id
+    const lead =
+        await LeadModel.findById(
+      req.params.id,
     );
 
     if (!lead) {
+
       return res.status(404).json({
         message: "Lead not found",
       });
@@ -217,6 +240,7 @@ exports.deleteLead = async (req, res) => {
     });
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
