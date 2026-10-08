@@ -2,7 +2,7 @@ const OmaxeLead = require("../models/OmaxeLead");
 const LamboLead = require("../models/LamboLead");
 const LoftLead = require("../models/loftLead");
 const InvestorLead = require("../models/InvestorLead");
-const GangaLead = require("../models/GangaLead");
+const GangaLead = require("../models/gangaLead");
 
 const cloudinary = require("../config/cloudinary");
 
