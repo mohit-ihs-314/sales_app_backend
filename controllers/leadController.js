@@ -2,28 +2,37 @@ const OmaxeLead = require("../models/OmaxeLead");
 const LamboLead = require("../models/LamboLead");
 const LoftLead = require("../models/loftLead");
 const InvestorLead = require("../models/InvestorLead");
+const GangaLead = require("../models/GangaLead");
+
 const cloudinary = require("../config/cloudinary");
 
-// ================= GET MODEL =================
+// ============================================================
+// GET MODEL
+// ============================================================
 
 const getLeadModel = (eventType) => {
-  if (eventType === "omaxe") {
-    return OmaxeLead;
-  }
+  switch (eventType) {
+    case "omaxe":
+      return OmaxeLead;
 
-  if (eventType === "lambo") {
-    return LamboLead;
-  }
+    case "lambo":
+      return LamboLead;
 
-  if (eventType === "loft") {
-    return LoftLead;
-  }
+    case "loft":
+      return LoftLead;
 
-  // investor / default
-  return InvestorLead;
+    case "ganga":
+      return GangaLead;
+
+    case "investor":
+    default:
+      return InvestorLead;
+  }
 };
 
-// ================= CREATE LEAD =================
+// ============================================================
+// CREATE LEAD
+// ============================================================
 
 exports.createLead = async (req, res) => {
   try {
@@ -36,9 +45,18 @@ exports.createLead = async (req, res) => {
       eventType,
     } = req.body;
 
+    console.log("=================================");
+    console.log("CREATE LEAD");
+    console.log("Event Type:", eventType);
+    console.log("Client:", clientName);
+    console.log("Phone:", phone);
+    console.log("=================================");
+
     const LeadModel = getLeadModel(eventType);
 
-    // ================= VALIDATION =================
+    // ========================================================
+    // VALIDATION
+    // ========================================================
 
     if (!clientName || !phone) {
       return res.status(400).json({
@@ -46,11 +64,12 @@ exports.createLead = async (req, res) => {
       });
     }
 
-    // =========================================================
+    // ========================================================
     // PHOTO VALIDATION
-    // Investor/IHS does NOT require photo.
-    // All other events still require photo.
-    // =========================================================
+    // Investor does NOT require photo
+    // Ganga DOES require photo
+    // Other events also require photo
+    // ========================================================
 
     if (eventType !== "investor" && !req.file) {
       return res.status(400).json({
@@ -58,11 +77,12 @@ exports.createLead = async (req, res) => {
       });
     }
 
-    // ================= CLOUDINARY =================
+    // ========================================================
+    // CLOUDINARY UPLOAD
+    // ========================================================
 
     let photoUrl = null;
 
-    // Upload photo only when one exists
     if (req.file) {
       const result = await cloudinary.uploader.upload(
         req.file.path,
@@ -72,38 +92,48 @@ exports.createLead = async (req, res) => {
       );
 
       photoUrl = result.secure_url;
+
+      console.log("Cloudinary photo:", photoUrl);
     }
 
-    // ================= SAVE =================
+    // ========================================================
+    // SAVE LEAD
+    // ========================================================
 
     const lead = await LeadModel.create({
       salesperson: req.user._id,
 
       clientName,
       phone,
-      email,
-      project,
-      notes,
+      email: email || "",
+      project: project || "",
+      notes: notes || "",
 
-      // Investor = null
-      // Other events = Cloudinary URL
       photo: photoUrl,
+
+      status: "New",
     });
 
-    // ================= RESPONSE =================
+    console.log("Lead created:", lead._id);
 
-    res.status(201).json(lead);
+    // ========================================================
+    // RESPONSE
+    // ========================================================
+
+    return res.status(201).json(lead);
 
   } catch (error) {
-    console.log(error);
+    console.error("CREATE LEAD ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-// ================= GET ALL LEADS =================
+// ============================================================
+// GET ALL LEADS
+// ============================================================
 
 exports.getAllLeads = async (req, res) => {
   try {
@@ -120,18 +150,20 @@ exports.getAllLeads = async (req, res) => {
         createdAt: -1,
       });
 
-    res.json(leads);
+    return res.json(leads);
 
   } catch (error) {
-    console.log(error);
+    console.error("GET ALL LEADS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-// ================= GET MY LEADS =================
+// ============================================================
+// GET MY LEADS
+// ============================================================
 
 exports.getMyLeads = async (req, res) => {
   try {
@@ -145,18 +177,20 @@ exports.getMyLeads = async (req, res) => {
       createdAt: -1,
     });
 
-    res.json(leads);
+    return res.json(leads);
 
   } catch (error) {
-    console.log(error);
+    console.error("GET MY LEADS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-// ================= UPDATE STATUS =================
+// ============================================================
+// UPDATE STATUS
+// ============================================================
 
 exports.updateLeadStatus = async (req, res) => {
   try {
@@ -181,18 +215,20 @@ exports.updateLeadStatus = async (req, res) => {
 
     await lead.save();
 
-    res.json(lead);
+    return res.json(lead);
 
   } catch (error) {
-    console.log(error);
+    console.error("UPDATE STATUS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-// ================= DELETE LEAD =================
+// ============================================================
+// DELETE LEAD
+// ============================================================
 
 exports.deleteLead = async (req, res) => {
   try {
@@ -212,14 +248,14 @@ exports.deleteLead = async (req, res) => {
 
     await lead.deleteOne();
 
-    res.json({
+    return res.json({
       message: "Lead deleted",
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("DELETE LEAD ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
